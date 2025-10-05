@@ -1,5 +1,5 @@
 pipeline {
-  agent none
+  agent any
 
   environment {
     SONAR_HOST = "http://sonarqube:9000"          // в docker-compose используйте имя сервиса
