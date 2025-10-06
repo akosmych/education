@@ -2,9 +2,9 @@ pipeline {
   agent any
 
   environment {
-    SONAR_HOST        = "http://devops/sonarqube"       // без завершающего /
+    SONAR_HOST        = "http://devops/sonarqube"       // link to sonar
     SONAR_PROJECT_KEY = "simple-node-app"
-    NEXUS_URL         = "http://devops/nexus/repository/raw-releases/"
+    NEXUS_URL         = "http://devops/nexus/repository/raw-releases/" //link to nexus repository
   }
 
   stages {
@@ -24,13 +24,14 @@ pipeline {
       agent {
         docker {
           image 'node:18'
-          reuseNode true          // используем тот же workspace, где уже есть git-клон
+          reuseNode true          // use the same workspacewhere we have git-clon
         }
       }
       steps {
-        sh 'npm ci || true'
+        sh 'sh "npm install"'
         sh 'npm test || echo "tests skipped"'
         sh 'mkdir -p build'
+        sh 'apt-get update && apt-get install -y zip'
         sh 'zip -r build/simple-node-app-${BUILD_NUMBER}.zip . -x ".git/*" "node_modules/*"'
       }
     }
@@ -43,7 +44,7 @@ pipeline {
         }
       }
       environment {
-        SONAR_LOGIN = credentials('sonar-token')   // в Jenkins должен быть secret-text с таким ID
+        SONAR_LOGIN = credentials('sonar-token')   // should in Jenkins secret-text with sonar-token ID
       }
       steps {
         sh '''
