@@ -55,9 +55,12 @@ pipeline {
   }
 
   post {
-    always {
+  always {
+    node {
       archiveArtifacts artifacts: 'build/*.zip', fingerprint: true
+     }
     }
+  }
     success { echo '✅ Pipeline finished OK' }
     failure { echo '❌ Pipeline failed' }
   }
