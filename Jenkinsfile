@@ -64,4 +64,3 @@ pipeline {
     success { echo '✅ Pipeline finished OK' }
     failure { echo '❌ Pipeline failed' }
   }
-}
