@@ -4,17 +4,13 @@ pipeline {
   environment {
     SONAR_HOST        = "http://devops/sonarqube/"                 // имя сервиса из docker-compose
     SONAR_PROJECT_KEY = "simple-node-app"
-    NEXUS_URL         = "http://devops/repository/raw-releases/"
+    NEXUS_URL         = "http://devops/nexus/repository/raw-releases/"
   }
 
   stages {
     stage('Checkout') {
       steps {
-        checkout([$class: 'GitSCM',
-          branches: [[name: '*/main']],
-          userRemoteConfigs: [[url: 'https://github.com/akosmych/education.git',
-                               credentialsId: 'github-creds']]
-])
+        checkout scm
       }
     }
 
