@@ -2,7 +2,7 @@ pipeline {
   agent any
 
   environment {
-    SONAR_HOST        = "http://devops/sonarqube/"                 // имя сервиса из docker-compose
+    SONAR_HOST        = "http://devops/sonarqube"       // без завершающего /
     SONAR_PROJECT_KEY = "simple-node-app"
     NEXUS_URL         = "http://devops/nexus/repository/raw-releases/"
   }
@@ -12,14 +12,21 @@ pipeline {
       steps {
         checkout([$class: 'GitSCM',
           branches: [[name: '*/main']],
-          userRemoteConfigs: [[url: 'https://github.com/akosmych/education.git',
-                               credentialsId: 'github-creds']]
+          userRemoteConfigs: [[
+            url: 'https://github.com/akosmych/education.git',
+            credentialsId: 'github-creds'
+          ]]
         ])
       }
     }
 
     stage('Install & Test') {
-      agent { docker { image 'node:18' } }
+      agent {
+        docker {
+          image 'node:18'
+          reuseNode true          // используем тот же workspace, где уже есть git-клон
+        }
+      }
       steps {
         sh 'npm ci || true'
         sh 'npm test || echo "tests skipped"'
@@ -29,9 +36,14 @@ pipeline {
     }
 
     stage('SonarQube Analysis') {
-      agent { docker { image 'sonarsource/sonar-scanner-cli:latest' } }
+      agent {
+        docker {
+          image 'sonarsource/sonar-scanner-cli:latest'
+          reuseNode true
+        }
+      }
       environment {
-        SONAR_LOGIN = credentials('sonar-token')  // должен существовать secret-text credential с ID sonar-token
+        SONAR_LOGIN = credentials('sonar-token')   // в Jenkins должен быть secret-text с таким ID
       }
       steps {
         sh '''
@@ -46,10 +58,14 @@ pipeline {
 
     stage('Publish to Nexus') {
       steps {
-        withCredentials([usernamePassword(credentialsId: 'nexus-creds', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')]) {
+        withCredentials([usernamePassword(credentialsId: 'nexus-creds',
+                                          usernameVariable: 'NEXUS_USER',
+                                          passwordVariable: 'NEXUS_PASS')]) {
           sh '''
             ART=build/simple-node-app-${BUILD_NUMBER}.zip
-            curl -v -u ${NEXUS_USER}:${NEXUS_PASS} --upload-file ${ART} ${NEXUS_URL}simple-node-app-${BUILD_NUMBER}.zip
+            curl -v -u ${NEXUS_USER}:${NEXUS_PASS} \
+                 --upload-file ${ART} \
+                 ${NEXUS_URL}simple-node-app-${BUILD_NUMBER}.zip
           '''
         }
       }
