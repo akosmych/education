@@ -80,4 +80,7 @@ pipeline {
       echo '✅ Pipeline finished OK'
     }
     failure {
-      echo '❌ Pipeline fail
+      echo '❌ Pipeline failed'
+    }
+  }
+}
