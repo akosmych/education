@@ -2,38 +2,36 @@ pipeline {
   agent any
 
   environment {
-    SONAR_HOST        = "http://devops/sonarqube"       // link to sonar
+    SONAR_HOST        = "http://devops/sonarqube"
     SONAR_PROJECT_KEY = "simple-node-app"
-    NEXUS_URL         = "http://devops/nexus/repository/raw-releases/" //link to nexus repository
+    NEXUS_URL         = "http://devops/nexus/repository/raw-releases/"
   }
 
   stages {
     stage('Checkout') {
       steps {
-        sh '''
-          apt-get update && apt-get install -y zip
-          npm install                 # <--- без лишнего sh
-          npm test || echo "tests skipped"
-          mkdir -p build
-          zip -r build/simple-node-app-${BUILD_NUMBER}.zip . -x ".git/*" "node_modules/*"
-      '''
-  }
-}
+        checkout([$class: 'GitSCM',
+                  branches: [[name: '*/main']],
+                  userRemoteConfigs: [[url: 'https://github.com/akosmych/education.git',
+                                       credentialsId: 'github-creds']]])
+      }
     }
 
     stage('Install & Test') {
       agent {
         docker {
           image 'node:18'
-          reuseNode true          // use the same workspacewhere we have git-clon
+          reuseNode true
         }
       }
       steps {
-        sh 'sh "npm install"'
-        sh 'npm test || echo "tests skipped"'
-        sh 'mkdir -p build'
-        sh 'apt-get update && apt-get install -y zip'
-        sh 'zip -r build/simple-node-app-${BUILD_NUMBER}.zip . -x ".git/*" "node_modules/*"'
+        sh '''
+          apt-get update && apt-get install -y zip
+          npm install
+          npm test || echo "tests skipped"
+          mkdir -p build
+          zip -r build/simple-node-app-${BUILD_NUMBER}.zip . -x ".git/*" "node_modules/*"
+        '''
       }
     }
 
@@ -45,7 +43,7 @@ pipeline {
         }
       }
       environment {
-        SONAR_LOGIN = credentials('sonar-token')   // should in Jenkins secret-text with sonar-token ID
+        SONAR_LOGIN = credentials('sonar-token')
       }
       steps {
         sh '''
@@ -82,7 +80,4 @@ pipeline {
       echo '✅ Pipeline finished OK'
     }
     failure {
-      echo '❌ Pipeline failed'
-    }
-  }
-}
+      echo '❌ Pipeline fail
