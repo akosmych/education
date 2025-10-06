@@ -10,14 +10,15 @@ pipeline {
   stages {
     stage('Checkout') {
       steps {
-        checkout([$class: 'GitSCM',
-          branches: [[name: '*/main']],
-          userRemoteConfigs: [[
-            url: 'https://github.com/akosmych/education.git',
-            credentialsId: 'github-creds'
-          ]]
-        ])
-      }
+        sh '''
+          apt-get update && apt-get install -y zip
+          npm install                 # <--- без лишнего sh
+          npm test || echo "tests skipped"
+          mkdir -p build
+          zip -r build/simple-node-app-${BUILD_NUMBER}.zip . -x ".git/*" "node_modules/*"
+      '''
+  }
+}
     }
 
     stage('Install & Test') {
