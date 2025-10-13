@@ -51,7 +51,7 @@ pipeline {
           sonar-scanner \
             -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
             -Dsonar.sources=. \
-            -Dsonar.host.url=${SONAR_HOST} \
+            -Dsonar.host.url=http://devops/sonarqube/api/v2/analysis/version \
             -Dsonar.login=${SONAR_LOGIN}
         '''
       }
