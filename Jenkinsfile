@@ -4,7 +4,7 @@ pipeline {
   environment {
     SONAR_HOST        = "http://sonarqube:9000/sonarqube"
     SONAR_PROJECT_KEY = "simple-node-app"
-    NEXUS_URL         = "http://devops/nexus/repository/raw-releases/"
+    NEXUS_URL         = "http://nexus:8081/repository/raw-releases/"
   }
 
   stages {
