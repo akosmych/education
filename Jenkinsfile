@@ -2,7 +2,7 @@ pipeline {
   agent any
 
   environment {
-    SONAR_HOST        = "http://sonarqube:9000/sonarqube/"
+    SONAR_HOST        = "http://sonarqube:9000/"
     SONAR_PROJECT_KEY = "simple-node-app"
     NEXUS_URL         = "http://devops/nexus/repository/raw-releases/"
   }
@@ -51,7 +51,7 @@ pipeline {
           sonar-scanner \
             -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
             -Dsonar.sources=. \
-            -Dsonar.host.url=http://devops/sonarqube/api/v2/analysis/version \
+            -Dsonar.host.url=${SONAR_HOST} \
             -Dsonar.login=${SONAR_LOGIN}
         '''
       }
