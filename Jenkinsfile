@@ -22,7 +22,7 @@ pipeline {
       }
     }
 
-    stage('Install & Test') {
+    stage('Install &   Test') {
       agent {
         docker {
           image 'node:18'
