@@ -1,6 +1,11 @@
 pipeline {
   agent any
 
+  triggers {
+    // 🔄 autostart piplane after push
+    githubPush()
+  }
+
   environment {
     SONAR_HOST        = "http://sonarqube:9000/sonarqube"
     SONAR_PROJECT_KEY = "simple-node-app"
