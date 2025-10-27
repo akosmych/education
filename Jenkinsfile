@@ -40,7 +40,7 @@ pipeline {
       }
     }
 
-    stage('SonarQube Analysis') {
+    stage('SonarQube  Analysis') {
       agent {
         docker {
           image 'sonarsource/sonar-scanner-cli:latest'
